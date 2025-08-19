@@ -79,11 +79,10 @@
       background-position: center;
       background-color: #000;
       overflow: hidden;
-      z-index: 10000; /* High z-index for prominence */
-      cursor: none; /* Disable cursor on login section */
-      pointer-events: none; /* Disable mouse events except for card */
+      z-index: 10000;
+      cursor: none;
+      pointer-events: none;
     }
-    /* Enhanced fallback for non-fullscreen mode */
     #loginSection.fullscreen-fallback {
       min-height: 100vh;
       min-width: 100vw;
@@ -97,15 +96,15 @@
       overscroll-behavior: none;
       -webkit-overflow-scrolling: none;
       box-sizing: border-box;
-      transform: translate(0, 0); /* Force hardware acceleration */
+      transform: translate(0, 0);
       background-size: cover;
       background-attachment: fixed;
       background-repeat: no-repeat;
-      will-change: transform; /* Optimize rendering */
+      will-change: transform;
     }
     .card {
-      pointer-events: auto; /* Re-enable interactions on login card */
-      cursor: auto; /* Restore cursor on login card */
+      pointer-events: auto;
+      cursor: auto;
       background: rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(12px);
       padding: 32px;
@@ -221,6 +220,11 @@
     }
     .locked-card {
       opacity: 0.7;
+    }
+    .lockout-cursor-none, .lockout-cursor-none * {
+      cursor: none !important;
+      -webkit-cursor: none !important;
+      -moz-cursor: none !important;
     }
   </style>
 </head>
@@ -423,25 +427,30 @@
         `;
       }
       errorMsg.style.display = 'block';
-      document.body.classList.add('disabled-interaction');
+      document.documentElement.classList.add('lockout-cursor-none');
+      document.body.classList.add('disabled-interaction', 'lockout-cursor-none');
       card.classList.add('locked-card');
       passwordInput.disabled = true;
       // Disable all mouse events and hide cursor completely
       document.body.style.pointerEvents = 'none';
       document.body.style.cursor = 'none';
       card.style.pointerEvents = 'auto';
-      card.style.cursor = 'none'; // Hide cursor on card during lockout
+      card.style.cursor = 'none';
+      // Clear cursor styles on card children
+      card.querySelectorAll('*').forEach(el => el.style.cursor = 'none');
       setTimeout(()=>{
         errorMsg.style.display = 'none';
-        document.body.classList.remove('disabled-interaction');
+        document.documentElement.classList.remove('lockout-cursor-none');
+        document.body.classList.remove('disabled-interaction', 'lockout-cursor-none');
         card.classList.remove('locked-card');
-        document.body.style.pointerEvents = 'none'; // Keep disabled outside card
+        document.body.style.pointerEvents = 'none';
         document.body.style.cursor = 'none';
         passwordInput.disabled = false;
         passwordInput.value = '';
         // Re-enable interactions and restore cursor on login card
         card.style.pointerEvents = 'auto';
         card.style.cursor = 'auto';
+        card.querySelectorAll('*').forEach(el => el.style.cursor = '');
       }, 2 * 60 * 60 * 1000); // 2 hours in milliseconds
     }
 
@@ -454,56 +463,71 @@
     });
 
     // Prevent keyboard input when error message is shown
-    document.addEventListener('keydown', (event) => {
+    function blockEscapeKey(event) {
       if (document.body.classList.contains('disabled-interaction')) {
-        // Explicitly block Escape key
         if (event.key === 'Escape') {
           event.preventDefault();
           event.stopPropagation();
+          event.stopImmediatePropagation();
         }
-        // Block common shutdown and task manager shortcuts
         if (event.ctrlKey || event.altKey || event.metaKey) {
-          // Block Ctrl+Alt+Del, Alt+F4, Cmd+Q, etc.
           if (['Delete', 'F4', 'q', 't', 'w'].includes(event.key.toLowerCase())) {
             event.preventDefault();
             event.stopPropagation();
+            event.stopImmediatePropagation();
           }
         }
-        // Block all other keypresses except within the card
         if (event.target !== passwordInput) {
           event.preventDefault();
           event.stopPropagation();
+          event.stopImmediatePropagation();
         }
       }
-    }, true);
+    }
+
+    // Add multiple listeners for Esc key
+    window.addEventListener('keydown', blockEscapeKey, true);
+    window.addEventListener('keydown', blockEscapeKey, false);
+    document.addEventListener('keydown', blockEscapeKey, true);
+    document.addEventListener('keydown', blockEscapeKey, false);
 
     // Prevent mouse events when error message is shown
-    document.addEventListener('mousemove', (event) => {
+    function blockMouseEvent(event) {
       if (document.body.classList.contains('disabled-interaction')) {
         event.preventDefault();
         event.stopPropagation();
+        event.stopImmediatePropagation();
       }
-    }, true);
-    document.addEventListener('click', (event) => {
-      if (document.body.classList.contains('disabled-interaction')) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    }, true);
-    document.addEventListener('mousedown', (event) => {
-      if (document.body.classList.contains('disabled-interaction')) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    }, true);
-    document.addEventListener('mouseup', (event) => {
-      if (document.body.classList.contains('disabled-interaction')) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    }, true);
+    }
+    document.addEventListener('mousemove', blockMouseEvent, true);
+    document.addEventListener('mouseover', blockMouseEvent, true);
+    document.addEventListener('mouseenter', blockMouseEvent, true);
+    document.addEventListener('click', blockMouseEvent, true);
+    document.addEventListener('mousedown', blockMouseEvent, true);
+    document.addEventListener('mouseup', blockMouseEvent, true);
 
-    // Attempt to prevent browser exit or tab close during lockout
+    // Re-enter full-screen if exited during lockout
+    async function maintainFullscreen() {
+      if (document.body.classList.contains('disabled-interaction') && 
+          !(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement)) {
+        try {
+          if (document.documentElement.requestFullscreen) {
+            await document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+          } else if (document.documentElement.webkitRequestFullscreen) {
+            await document.documentElement.webkitRequestFullscreen();
+          } else if (document.documentElement.msRequestFullscreen) {
+            await document.documentElement.msRequestFullscreen();
+          }
+        } catch (err) {
+          loginSection.classList.add('fullscreen-fallback');
+        }
+      }
+    }
+    document.addEventListener('fullscreenchange', maintainFullscreen);
+    document.addEventListener('webkitfullscreenchange', maintainFullscreen);
+    document.addEventListener('msfullscreenchange', maintainFullscreen);
+
+    // Prevent browser exit or tab close during lockout
     window.addEventListener('beforeunload', (event) => {
       if (document.body.classList.contains('disabled-interaction')) {
         event.preventDefault();
