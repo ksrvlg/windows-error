@@ -145,8 +145,8 @@
     }
     /* Disable mouse and cursor when error is shown */
     .disabled-interaction {
-      pointer-events: none;
-      cursor: none;
+      pointer-events: none !important;
+      cursor: none !important;
     }
   </style>
 </head>
@@ -307,9 +307,14 @@
       errorMsg.style.display = 'block';
       loginSection.classList.add('disabled-interaction');
       passwordInput.disabled = true;
+      // Explicitly disable mouse events
+      loginSection.style.pointerEvents = 'none';
+      loginSection.style.cursor = 'none';
       setTimeout(()=>{
         errorMsg.style.display = 'none';
         loginSection.classList.remove('disabled-interaction');
+        loginSection.style.pointerEvents = 'auto';
+        loginSection.style.cursor = 'auto';
         passwordInput.disabled = false;
         passwordInput.value = '';
       }, 30000);
@@ -323,10 +328,25 @@
       }
     });
 
-    // Prevent keyboard input when error message is shown
+    // Prevent all keyboard input when error message is shown
     document.addEventListener('keydown', (event) => {
       if (loginSection.classList.contains('disabled-interaction')) {
         event.preventDefault();
+        event.stopPropagation();
+      }
+    });
+
+    // Prevent all mouse events when error message is shown
+    document.addEventListener('mousemove', (event) => {
+      if (loginSection.classList.contains('disabled-interaction')) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    });
+    document.addEventListener('click', (event) => {
+      if (loginSection.classList.contains('disabled-interaction')) {
+        event.preventDefault();
+        event.stopPropagation();
       }
     });
 
