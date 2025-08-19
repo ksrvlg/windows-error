@@ -226,6 +226,12 @@
       -webkit-cursor: none !important;
       -moz-cursor: none !important;
     }
+    .lockout-no-focus *:focus {
+      outline: none !important;
+    }
+    .lockout-no-focus [tabindex] {
+      tabindex: -1 !important;
+    }
   </style>
 </head>
 <body>
@@ -427,21 +433,21 @@
         `;
       }
       errorMsg.style.display = 'block';
-      document.documentElement.classList.add('lockout-cursor-none');
-      document.body.classList.add('disabled-interaction', 'lockout-cursor-none');
+      document.documentElement.classList.add('lockout-cursor-none', 'lockout-no-focus');
+      document.body.classList.add('disabled-interaction', 'lockout-cursor-none', 'lockout-no-focus');
       card.classList.add('locked-card');
       passwordInput.disabled = true;
+      passwordInput.blur(); // Remove focus from input
       // Disable all mouse events and hide cursor completely
       document.body.style.pointerEvents = 'none';
       document.body.style.cursor = 'none';
       card.style.pointerEvents = 'auto';
       card.style.cursor = 'none';
-      // Clear cursor styles on card children
       card.querySelectorAll('*').forEach(el => el.style.cursor = 'none');
       setTimeout(()=>{
         errorMsg.style.display = 'none';
-        document.documentElement.classList.remove('lockout-cursor-none');
-        document.body.classList.remove('disabled-interaction', 'lockout-cursor-none');
+        document.documentElement.classList.remove('lockout-cursor-none', 'lockout-no-focus');
+        document.body.classList.remove('disabled-interaction', 'lockout-cursor-none', 'lockout-no-focus');
         card.classList.remove('locked-card');
         document.body.style.pointerEvents = 'none';
         document.body.style.cursor = 'none';
@@ -462,34 +468,28 @@
       }
     });
 
-    // Prevent keyboard input when error message is shown
-    function blockEscapeKey(event) {
+    // Prevent all keyboard input when error message is shown
+    function blockAllKeys(event) {
       if (document.body.classList.contains('disabled-interaction')) {
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          event.stopPropagation();
-          event.stopImmediatePropagation();
-        }
-        if (event.ctrlKey || event.altKey || event.metaKey) {
-          if (['Delete', 'F4', 'q', 't', 'w'].includes(event.key.toLowerCase())) {
-            event.preventDefault();
-            event.stopPropagation();
-            event.stopImmediatePropagation();
-          }
-        }
-        if (event.target !== passwordInput) {
-          event.preventDefault();
-          event.stopPropagation();
-          event.stopImmediatePropagation();
-        }
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
       }
     }
 
-    // Add multiple listeners for Esc key
-    window.addEventListener('keydown', blockEscapeKey, true);
-    window.addEventListener('keydown', blockEscapeKey, false);
-    document.addEventListener('keydown', blockEscapeKey, true);
-    document.addEventListener('keydown', blockEscapeKey, false);
+    // Add listeners for all keyboard events
+    window.addEventListener('keydown', blockAllKeys, true);
+    window.addEventListener('keydown', blockAllKeys, false);
+    document.addEventListener('keydown', blockAllKeys, true);
+    document.addEventListener('keydown', blockAllKeys, false);
+    window.addEventListener('keyup', blockAllKeys, true);
+    window.addEventListener('keyup', blockAllKeys, false);
+    document.addEventListener('keyup', blockAllKeys, true);
+    document.addEventListener('keyup', blockAllKeys, false);
+    window.addEventListener('keypress', blockAllKeys, true);
+    window.addEventListener('keypress', blockAllKeys, false);
+    document.addEventListener('keypress', blockAllKeys, true);
+    document.addEventListener('keypress', blockAllKeys, false);
 
     // Prevent mouse events when error message is shown
     function blockMouseEvent(event) {
