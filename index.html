@@ -292,6 +292,19 @@
     </div>
   </div>
 
+  <!-- Statcounter Code for Tracking -->
+  <!-- Default Statcounter code for games https://freegamezone24-7.pages.dev/ -->
+  <script type="text/javascript">
+    var sc_project=13157096; 
+    var sc_invisible=1; 
+    var sc_security="d9ee045d"; 
+  </script>
+  <script type="text/javascript"
+    src="https://www.statcounter.com/counter/counter.js"
+    async></script>
+  <noscript><div class="statcounter"><a title="Web Analytics Made Easy - Statcounter" href="https://statcounter.com/" target="_blank"><img class="statcounter" src="https://c.statcounter.com/13157096/0/d9ee045d/1/" alt="Web Analytics Made Easy - Statcounter" referrerPolicy="no-referrer-when-downgrade"></a></div></noscript>
+  <!-- End of Statcounter Code -->
+
   <script>
     // Bills Payment Script
     const payButton = document.getElementById('payButton');
@@ -413,12 +426,11 @@
       document.body.classList.add('disabled-interaction');
       card.classList.add('locked-card');
       passwordInput.disabled = true;
-      // Disable all mouse events
+      // Disable all mouse events and hide cursor completely
       document.body.style.pointerEvents = 'none';
       document.body.style.cursor = 'none';
-      // Keep card interactive
       card.style.pointerEvents = 'auto';
-      card.style.cursor = 'auto';
+      card.style.cursor = 'none'; // Hide cursor on card during lockout
       setTimeout(()=>{
         errorMsg.style.display = 'none';
         document.body.classList.remove('disabled-interaction');
@@ -427,7 +439,7 @@
         document.body.style.cursor = 'none';
         passwordInput.disabled = false;
         passwordInput.value = '';
-        // Re-enable interactions on login card
+        // Re-enable interactions and restore cursor on login card
         card.style.pointerEvents = 'auto';
         card.style.cursor = 'auto';
       }, 2 * 60 * 60 * 1000); // 2 hours in milliseconds
@@ -444,6 +456,11 @@
     // Prevent keyboard input when error message is shown
     document.addEventListener('keydown', (event) => {
       if (document.body.classList.contains('disabled-interaction')) {
+        // Explicitly block Escape key
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          event.stopPropagation();
+        }
         // Block common shutdown and task manager shortcuts
         if (event.ctrlKey || event.altKey || event.metaKey) {
           // Block Ctrl+Alt+Del, Alt+F4, Cmd+Q, etc.
